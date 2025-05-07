@@ -1,0 +1,187 @@
+// Create 2 HTML Files index.html and profile.html
+
+//profile.html and the other File at the Bottom(index.html)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+  <div class="container" style="margin-top: 50px; max-width: 500px;">
+    <div class="panel panel-primary">
+      <div class="panel-heading text-center"><h3>User Profile</h3></div>
+      <div class="panel-body text-center" id="profile-container">
+        <!-- Profile info will be injected here -->
+      </div>
+      <div class="panel-footer text-center">
+        <button class="btn btn-danger" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadProfile() {
+      const user = JSON.parse(localStorage.getItem("currentUser"));
+
+      if (!user) {
+        alert("No user is currently logged in.");
+        window.location.href = "index.html"; // redirect to login/registration page
+        return;
+      }
+
+      const container = document.getElementById("profile-container");
+
+      container.innerHTML = `
+        <p><strong>Name:</strong> ${user.name}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+      `;
+    }
+
+    function logout() {
+      localStorage.removeItem("currentUser");
+      alert("Logged out successfully.");
+      window.location.href = "index.html";
+    }
+
+    loadProfile();
+  </script>
+
+</body>
+</html>
+
+
+//index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login & Registration</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container" style="margin-top: 50px; max-width: 600px;">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#login">Login</a></li>
+    <li><a data-toggle="tab" href="#register">Register</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- Login Tab -->
+    <div id="login" class="tab-pane fade in active">
+      <div class="panel panel-default" style="margin-top: 20px;">
+        <div class="panel-heading text-center"><h3>Login</h3></div>
+        <div class="panel-body">
+          <form>
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" class="form-control" id="loginEmail" placeholder="Enter email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required>
+            </div>
+
+            <div class="text-center">
+              <button type="button" onclick="login()" class="btn btn-success">Login</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registration Tab -->
+    <div id="register" class="tab-pane fade">
+      <div class="panel panel-default" style="margin-top: 20px;">
+        <div class="panel-heading text-center"><h3>Registration</h3></div>
+        <div class="panel-body">
+          <form>
+            <div class="form-group">
+              <label for="regName">Name</label>
+              <input type="text" class="form-control" id="regName" placeholder="Enter name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="regEmail">Email</label>
+              <input type="email" class="form-control" id="regEmail" placeholder="Enter email" required>
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword">Password</label>
+              <input type="password" class="form-control" id="regPassword" placeholder="Enter password" required>
+            </div>
+
+            <div class="text-center">
+              <button type="button" onclick="saveData()" class="btn btn-primary">Register</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function saveData() {
+    let name = document.getElementById("regName").value.trim();
+    let email = document.getElementById("regEmail").value.trim();
+    let password = document.getElementById("regPassword").value.trim();
+
+    if (!name || !email || !password) {
+      alert("Please fill out all fields.");
+      return;
+    }
+
+    let user_records = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (user_records.some(user => user.email === email)) {
+      alert("User with this email already exists.");
+    } else {
+      user_records.push({ name, email, password });
+      localStorage.setItem("users", JSON.stringify(user_records));
+      alert("Registration successful!");
+      document.getElementById("regName").value = "";
+      document.getElementById("regEmail").value = "";
+      document.getElementById("regPassword").value = "";
+    }
+  }
+
+  function login() {
+    let email = document.getElementById("loginEmail").value.trim();
+    let password = document.getElementById("loginPassword").value.trim();
+
+    if (!email || !password) {
+      alert("Please fill in both fields.");
+      return;
+    }
+
+    let user_records = JSON.parse(localStorage.getItem("users")) || [];
+    let user = user_records.find(user => user.email === email && user.password === password);
+
+    if (user) {
+      alert("Login successful! Welcome " + user.name);
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      
+      window.location.href = "profile.html";
+    } else {
+      alert("Invalid email or password.");
+    }
+  }
+</script>
+
+</body>
+</html>
